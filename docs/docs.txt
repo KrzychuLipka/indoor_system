@@ -1,0 +1,48 @@
+Współbieżność (Concurrency) → ogólny koncept pozwalający obsługiwać wiele zadań "jednocześnie" ale niekoniecznie w tym samym momencie.
+- czekanie na swoją kolej"
+
+Równoległość (Parallelism) → równoczesne (w tym samym czasie) przetwarzania różnych fragmentów kodu lub zadań, na wielu procesorach lub rdzeniach procesora w celu zwiększenia wydajności. 
+- "robienie rzeczy jednocześnie"
+
+***
+
+Techniki współbieżności:
+Wielozadaniowość (Multitasking)
+Wątki (Threads)
+Współdzielenie pamięci
+Kolejki
+Zdarzenia (Event-driven programming)
+Programowanie asynchroniczne
+Programowanie reaktywne (Reactive programming)
+Blokowanie i synchronizacja
+Semafory
+Mutexy
+Monitorowanie
+
+Techniki równoległości:
+Podział danych (Data parallelism)
+Podział zadań (Task parallelism)
+Model MapReduce
+Równoległość w obrębie procesów (Process-level parallelism)
+Wątki w równoległości (Thread-level parallelism)
+GPU computing (Równoległość na procesorach graficznych)
+SIMD (Single Instruction, Multiple Data)
+MIMD (Multiple Instruction, Multiple Data)
+Architektura wielordzeniowa (Multicore architecture)
+Przetwarzanie równoległe z rozdzieleniem pamięci
+
+***
+
+Asynchroniczność w programowaniu - wykorzystuje jeden wątek wykonawczy, ale umożliwia nieblokującą obsługę wielu zadań. Kod nie jest zatrzymywany podczas oczekiwania na zakończenie operacji, co pozwala na efektywne korzystanie z zasobów. Asynchroniczność to technika współbieżności.
+
+Programowanie równoległe może być osiągane przy użyciu wielowątkowości, ale nie zawsze jest to konieczne, zwłaszcza w przypadku systemów, które oferują inną równoległość, taką jak rozproszone systemy czy GPU (jednostki przetwarzające grafikę). 
+
+Wielowątkowość w programowaniu - jednoczesne wykonanie wielu wątków w obrębie jednego procesu. Wątek to podstawowa jednostka wykonawcza, a wielowątkowość umożliwia współbieżne wykonywanie różnych fragmentów kodu w ramach tego samego programu. Każdy wątek może blokować inne wątki (w przypadku tzw. wątków blokujących) w trakcie oczekiwania na zasoby lub zakończenie operacji.
+
+Wielowątkowość może być zarówno techniką współbieżności (Concurrency), jak i równoległości (Parallelism), w zależności od sposobu jej użycia.
+📌 Kiedy wielowątkowość to współbieżność?
+🔹 Gdy mamy jeden rdzeń CPU, a system przełącza się między wątkami (tzw. "time slicing").
+🔹 Wątki działają naprzemiennie, ale nigdy dokładnie w tym samym czasie.
+🔹 Przykłady:
+JavaScript (w przeglądarce), gdzie asynchroniczność jest realizowana na jednym wątku.
+Python threading (przez Global Interpreter Lock – GIL nie pozwala na jednoczesne działanie wielu wątków na różnych rdzeniach).

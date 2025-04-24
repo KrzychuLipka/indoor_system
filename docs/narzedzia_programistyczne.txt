@@ -1,0 +1,24 @@
+Technologia:
+FastAPI – lekki i szybki framework do budowy API w Pythonie.
+PostgreSQL + PostGIS – baza danych z obsługą danych geograficznych.
+SQLAlchemy + GeoAlchemy2 – ORM i rozszerzenie dla obsługi geometrii w SQLAlchemy.
+Pydantic – walidacja danych wejściowych.
+Uvicorn – serwer ASGI do uruchamiania aplikacji.
+
+*** 
+
+Start serwera:
+python -m uvicorn main:app --reload
+- Uruchamianie aplikacji webowej napisanej, z wykorzystaniem serwera ASGI (Asynchronous Server Gateway Interface). 
+
+python -m – To polecenie uruchamia moduł w Pythonie. Oznacza to, że uruchamiamy skrypt jako moduł, a nie bezpośrednio wskazując plik. W tym przypadku uruchamiamy moduł uvicorn.
+
+uvicorn – To serwer ASGI, który służy do uruchamiania aplikacji webowych.
+
+main:app – To odniesienie do aplikacji, którą chcemy uruchomić.
+
+main to nazwa pliku (bez rozszerzenia .py), w którym znajduje się definicja aplikacji.
+
+app to instancja aplikacji, która jest zdefiniowana w tym pliku. 
+
+*** 
