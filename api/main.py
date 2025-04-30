@@ -13,8 +13,10 @@ app = FastAPI()
 def test():
     return {"message": "Witoj hopie!"}
 
-@app.post("/people")
-def create_person(person_create: PersonCreate, db_session: Session = Depends(get_db_session)):
+# Wzorując się na poniższych przykładach, zaimplementuj CRUD w swojej aplikacji.
+
+@app.post("/users")
+def create_user(person_create: PersonCreate, db_session: Session = Depends(get_db_session)):
     try:
         position_geom = wkt.loads(person_create.position)
     except Exception:
@@ -28,7 +30,7 @@ def create_person(person_create: PersonCreate, db_session: Session = Depends(get
     db_session.add(new_person)
     db_session.commit()
     db_session.refresh(new_person)
-    return {
+    return jsonable_encoder({
         "id": new_person.id,
         "first_name": new_person.first_name,
         "last_name": new_person.last_name,
@@ -37,10 +39,10 @@ def create_person(person_create: PersonCreate, db_session: Session = Depends(get
             "x": position_geom.x,
             "y": position_geom.y
         }
-    }
+    })
 
-@app.get("/people")
-def get_all_people(db_session: Session = Depends(get_db_session)):
+@app.get("/users")
+def get_all_users(db_session: Session = Depends(get_db_session)):
     people = db_session.query(Person).all()
     result = []
     for person in people:
@@ -55,11 +57,11 @@ def get_all_people(db_session: Session = Depends(get_db_session)):
     return jsonable_encoder(result)
 
 
-@app.get("/people/{person_id}/position")
-def get_position(person_id: int, db_session: Session = Depends(get_db_session)):
+@app.get("/users/{person_id}/position")
+def get_user_position(person_id: int, db_session: Session = Depends(get_db_session)):
     person = db_session.query(Person).filter(Person.id == person_id).first()
     if not person:
-        raise HTTPException(status_code=404, detail="Person not found")
+        raise HTTPException(status_code=404, detail="User not found")
     if not person.position:
         raise HTTPException(status_code=404, detail="Position not available")
     position_geom = wkb.loads(bytes(person.position.data))
@@ -70,11 +72,11 @@ def get_position(person_id: int, db_session: Session = Depends(get_db_session)):
         }
     })
 
-@app.put("/people/{person_id}/position")
+@app.put("/users/{person_id}/position")
 def update_position(person_id: int, position_update: PositionUpdate, db_session: Session = Depends(get_db_session)):
     person = db_session.query(Person).filter(Person.id == person_id).first()
     if not person:
-        raise HTTPException(status_code=404, detail="Person not found")    
+        raise HTTPException(status_code=404, detail="User not found")    
     try:
         _ = wkt.loads(position_update.position)
     except Exception:
@@ -89,11 +91,11 @@ def update_position(person_id: int, position_update: PositionUpdate, db_session:
     })
 
 
-@app.delete("/people/{person_id}")
-def delete_person(person_id: int, db_session: Session = Depends(get_db_session)):
+@app.delete("/users/{person_id}")
+def delete_user(person_id: int, db_session: Session = Depends(get_db_session)):
     person = db_session.query(Person).filter(Person.id == person_id).first()
     if not person:
-        raise HTTPException(status_code=404, detail="Person not found")
+        raise HTTPException(status_code=404, detail="User not found")
     db_session.delete(person)
     db_session.commit()
-    return jsonable_encoder({"message": "Person deleted"})
+    return jsonable_encoder({"message": "User deleted"})
