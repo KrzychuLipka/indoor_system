@@ -9,12 +9,6 @@ from encoders import to_dict
 ORMBaseModel.metadata.create_all(bind=db_engine)
 app = FastAPI()
 
-@app.get("/")
-def test():
-    return {"message": "Witoj hopie!"}
-
-# Wzorując się na poniższych przykładach, zaimplementuj CRUD w swojej aplikacji.
-
 @app.post("/users")
 def create_user(person_create: PersonCreate, db_session: Session = Depends(get_db_session)):
     try:
