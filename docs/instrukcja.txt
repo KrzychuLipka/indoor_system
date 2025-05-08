@@ -1,0 +1,225 @@
+﻿*********************************************************************************************************
+Instalacja Pythona oraz IDE (Integrated Development Environment)
+*********************************************************************************************************
+
+1. https://www.python.org/downloads/
+
+2. Wybierz edytor kodu, który będzie wygodny do pisania i uruchamiania skryptów Pythona. 
+   Popularne opcje to:
+   - Visual Studio Code (VS Code)
+   - PyCharm
+   - Sublime Text
+
+
+*********************************************************************************************************
+Pierwszy skrypt w Pythonie
+*********************************************************************************************************
+
+Otwórz wybrany edytor kodu (np. VS Code) i utwórz nowy plik z rozszerzeniem .py. Wpisz poniższy kod, aby wyświetlić "Hello, World!": 
+
+print("Hello, World!")            
+
+Zapisz plik i uruchom go. W VS Code możesz to zrobić, klikając prawym przyciskiem myszy na plik i wybierając "Run Python File in Terminal".
+
+
+*********************************************************************************************************
+Dodatkowe narzędzia programistyczne
+*********************************************************************************************************
+
+FastAPI – lekki i szybki framework do budowy API w Pythonie.
+Uvicorn – lekki i szybki serwer ASGI, idealny do uruchamiania aplikacji FastAPI.
+
+
+*********************************************************************************************************
+Uruchomienie serwera
+*********************************************************************************************************
+
+python -m uvicorn main:app --reload
+- Uruchamianie modułu uvicorn
+
+python -m 
+- Polecenie uruchomienia modułu w Pythonie
+
+main:app
+- Odniesienie do aplikacji, którą chcemy uruchomić (main to nazwa utworzonego wcześniej pliku, bez rozszerzenia .py)
+
+app
+- Instancja aplikacji 
+
+
+*********************************************************************************************************
+Zabezpieczenie połączenia z bazą danych
+*********************************************************************************************************
+
+1. Dodaj zmienną środowiskową o nazwie DATABASE_URL: 
+
+A. PostgreSQL
+DATABASE_URL = postgresql://<username>:<password>@localhost:5432/<db_name>.
+
+B. SQLite
+DATABASE_URL = sqlite:///./<db_name>.db
+
+
+2. Zaktualizuj konfigurację w pliku db_config.py
+
+A. PostgreSQL
+
+import os
+
+DATABASE_URL = os.getenv("DATABASE_URL")
+db_engine = create_engine(DATABASE_URL)
+...
+
+B. SQLite
+
+import os
+
+DATABASE_URL = "sqlite:///./test.db"
+db_engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+...
+
+
+3. Zabezpieczenie danych wejściowych
+- Zwróć uwagę w swoim projekcie na walidację danych wejściowych za pomocą Pydantic.
+- Zwróć uwagę w swoim projekcie na zabezpieczenie przed SQL Injection, poprzez wykorzystanie SQLAlchemy (ORM).
+
+
+*** Dodatkowe zalecenia dotyczące zabezpieczenia bazy danych ***
+- Rozważ szyfrowanie danych (np. pgcrypto w przypadku PostgreSQL).
+- Ustaw odpowiednie uprawnienia dostępu do katalogu, w którym przechowywana jest baza danych, aby zapobiec nieautoryzowanemu dostępowi.
+- W przypadku PostgreSQL, zmień domyślny port, na którym nasłuchuje serwer (5432), aby utrudnić ataki typu brute force.
+Twórz regularne kopie zapasowe bazy danych, aby zabezpieczyć się przed utratą danych.
+Zaimplementuj mechanizmymonitorowania i logowania dostępu do bazy danych, aby wykrywać i reagować na potencjalne zagrożenia.
+
+
+*********************************************************************************************************
+Wdrożenie aplikacji
+*********************************************************************************************************
+
+Krok 1: Dockerfile – konteneryzacja aplikacji
+
+1. Utwórz plik "Dockerfile" (bez rozszerzenia) w głównym katalogu projektu:
+
+FROM python:3.11-slim
+
+# Ustaw katalog roboczy
+WORKDIR /app
+
+# Kopiuj pliki projektu
+COPY . .
+
+# Zainstaluj zależności
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Otwórz port 8000
+EXPOSE 8000
+
+# Komenda startowa
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+
+
+
+*********************************************************************************************************
+Baza wiedzy
+*********************************************************************************************************
+
+*** Kilka słów o architekturze ***
+
+Architektura klient-serwer to model komunikacji w systemach komputerowych, w którym klient (użytkownik lub aplikacja) żąda usług od serwera (komputer lub aplikacja dostarczająca te usługi). Jest to jeden z najczęściej stosowanych modeli w sieciach komputerowych, aplikacjach webowych, bazach danych i wielu innych systemach.
+
+W architekturze P2P każdy węzeł w sieci pełni rolę zarówno klienta, jak i serwera. Węzły komunikują się bezpośrednio ze sobą, bez centralnego serwera.
+
+Mikroserwisy to podejście do projektowania aplikacji jako zestawu małych, niezależnych usług, które komunikują się ze sobą przez API.
+
+W architekturze sterowanej zdarzeniami systemy reagują na zdarzenia, które mogą być generowane przez użytkowników, systemy lub inne źródła.
+
+W architekturze serverless aplikacje są uruchamiane w środowisku chmurowym, gdzie zarządzanie serwerami jest abstrahowane przez dostawcę usług chmurowych.
+
+
+*** Dekorator ***
+
+dekorator - specjalna funkcja w Pythonie, która pozwala na modyfikowanie lub rozszerzanie funkcjonalności innej funkcji lub metody bez zmiany jej kodu. Dekoratory są często używane do dodawania funkcji takich jak logowanie, walidacja, autoryzacja itp. Dekorator jest oznaczany przez symbol @ przed nazwą funkcji dekorującej. Więcej szczegółów: https://docs.python.org/3/glossary.html#term-decorator
+
+Przykład:
+
+def my_decorator(func):
+    def wrapper():
+        print("Coś przed funkcją")
+        func()
+        print("Coś po funkcji")
+    return wrapper
+
+@my_decorator
+def say_hello():
+    print("Hello!")
+
+say_hello()
+
+
+*** ASGI ***
+
+Aplikację FastAPI należy uruchomi za pomocą serwera ASGI, takiego jak Uvicorn.
+
+ASGI (Asynchronous Server Gateway Interface) - specyfikacja interfejsu między serwerem a klientem, która uwzględnia asynchroniczne programowanie. ASGI jest następcą WSGI (Web Server Gateway Interface). Więcej szczegółów: https://asgi.readthedocs.io/en/latest/
+
+
+*** Factory ***
+
+Wzorzec Factory umożliwia tworzenie obiektów bez ujawniania szczegółów ich konfiguracji. Fabryka dostarcza interfejs do tworzenia obiektów, co pozwala na wielokrotne tworzenie obiektów z tą samą konfiguracją, przy jednoczesnym ukryciu logiki tworzenia przed klientem.
+
+
+*** yield ***
+
+yield - słowo kluczowe w Pythonie, które zatrzymuje funkcję i zwraca wartość, ale nie kończy jej działania. Taka funkcja nazywa się generatorem. Można potem ją wznawiać i dalej kontynuować (tak, jakby była "pauzowana"). 
+
+Typowe zastosowania yield:
+- Zwracanie wielu wartości po kolei (leniwe przetwarzanie, nie wszystko na raz)
+- Czytanie plików linia po linii
+- Strumieniowanie danych (np. z API, bazy, socketów)
+- Szybsze i mniej pamięciożerne przetwarzanie
+
+Więcej szczegółów: https://docs.python.org/3/reference/expressions.html#yield-expressions
+
+
+*** Przykład ataku SQL Injection ***
+
+from sqlalchemy.orm import Session
+
+def get_user_by_name(db_session: Session, name: str):
+    query = f"SELECT * FROM users WHERE name = '{name}'"
+    result = db_session.execute(query)
+    return result.fetchall()
+
+Jeśli użytkownik wprowadzi złośliwy kod, taki jak John' OR '1'='1, zapytanie przybierze następującą postać:
+
+SELECT * FROM users WHERE name = 'John' OR '1'='1'
+
+Ponieważ 1=1 jest zawsze prawdziwe, zapytanie zwróci wszystkie wiersze z tabeli users, co może prowadzić do wycieku danych.
+
+
+*** Konfiguracja OAuth2 ***
+
+1. Wybór dostawcy OAuth2
+Najpierw musisz wybrać dostawcę OAuth2, takiego jak Google, GitHub, Facebook, czy inne. Każdy z nich ma swoje własne kroki rejestracji aplikacji.
+
+2. Rejestracja aplikacji u dostawcy OAuth2
+- Zaloguj się na stronie dostawcy OAuth2.
+- Zarejestruj nową aplikację. Podaj nazwę aplikacji, adres URL przekierowania (redirect URI) i inne wymagane informacje.
+- Uzyskaj Client ID i Client Secret. Te dane będą potrzebne do konfiguracji aplikacji.
+
+3. Integracja z biblioteką Authlib (https://docs.authlib.org/en/latest/)
+
+
+*** Dockerfile ***
+
+FROM python:3.11-slim: To polecenie określa bazowy obraz, który będzie używany do budowy kontenera. W tym przypadku jest to lekka wersja Pythona 3.11.
+
+WORKDIR /app: Ustawia katalog roboczy wewnątrz kontenera na /app. Wszystkie kolejne polecenia będą wykonywane w tym katalogu.
+
+COPY . .: Kopiuje wszystkie pliki z bieżącego katalogu (gdzie znajduje się Dockerfile) do katalogu roboczego w kontenerze (/app).
+
+RUN pip install --no-cache-dir -r requirements.txt: To polecenie instaluje wszystkie zależności wymienione w pliku requirements.txt za pomocą pip, menedżera pakietów Pythona. Opcja --no-cache-dir zapobiega zapisywaniu pamięci podręcznej, co zmniejsza rozmiar obrazu.
+
+EXPOSE 8000: Informuje Docker, że kontener będzie nasłuchiwał na porcie 8000. To nie otwiera portu, ale jest wskazówką dla użytkowników obrazu.
+
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]: Określa domyślną komendę do uruchomienia po starcie kontenera. W tym przypadku uruchamia serwer Uvicorn, który startuje aplikację FastAPI zdefiniowaną w pliku main.py i nasłuchuje na wszystkich interfejsach sieciowych (0.0.0.0) na porcie 8000.
