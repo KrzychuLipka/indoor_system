@@ -197,29 +197,6 @@ Po chwili aplikacja będzie dostępna na: http://localhost:8000
 
 Krok 6: Wdrożenie na darmowy serwer (np. Render.com)
 
-1. Wejdź na https://render.com i utwórz konto.
-
-
-2. Utwórz nowy serwis typu Web Service.
-
-Podłącz repozytorium z aplikacją (GitHub, GitLab itp.).
-
-W konfiguracji ustaw:
-
-Build Command: docker-compose build
-
-Start Command: docker-compose up
-
-Dockerfile path: jeśli używasz docker-compose.yml, nie musisz podawać ścieżki do Dockerfile
-
-Port: 8000
-
-Environment Variables:
-
-DATABASE_URL — postgresql://<username>:<password>@db:5432/<db_name>
-
-Alternatywnie: utwórz osobny serwis typu PostgreSQL na Renderze i połącz go z aplikacją przez DATABASE_URL.
-
 
 *********************************************************************************************************
 Baza wiedzy
