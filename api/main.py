@@ -1,12 +1,26 @@
 from fastapi import FastAPI, HTTPException, Depends
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import OperationalError
 from shapely import wkb, wkt
 from fastapi.encoders import jsonable_encoder
 from models import Person, PersonCreate, PositionUpdate
 from db_config import ORMBaseModel, db_engine, get_db_session
 from encoders import to_dict
+import time
 
-ORMBaseModel.metadata.create_all(bind=db_engine)
+max_retries = 10
+for i in range(max_retries):
+    try:
+        ORMBaseModel.metadata.create_all(bind=db_engine)
+        print("✅ Database connected and tables created.")
+        break
+    except OperationalError:
+        print(f"⏳ Database not ready (attempt {i+1}/{max_retries}), retrying in 2s...")
+        time.sleep(2)
+else:
+    print("❌ Could not connect to the database. Exiting.")
+    raise RuntimeError("Database not available")
+
 app = FastAPI()
 
 @app.post("/users")
@@ -50,7 +64,6 @@ def get_all_users(db_session: Session = Depends(get_db_session)):
         result.append(person_dict)
     return jsonable_encoder(result)
 
-
 @app.get("/users/{person_id}/position")
 def get_user_position(person_id: int, db_session: Session = Depends(get_db_session)):
     person = db_session.query(Person).filter(Person.id == person_id).first()
@@ -83,7 +96,6 @@ def update_position(person_id: int, position_update: PositionUpdate, db_session:
         "id": person.id,
         "position": position_update.position
     })
-
 
 @app.delete("/users/{person_id}")
 def delete_user(person_id: int, db_session: Session = Depends(get_db_session)):

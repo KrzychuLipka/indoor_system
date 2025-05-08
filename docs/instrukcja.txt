@@ -96,27 +96,129 @@ Zaimplementuj mechanizmymonitorowania i logowania dostępu do bazy danych, aby w
 Wdrożenie aplikacji
 *********************************************************************************************************
 
-Krok 1: Dockerfile – konteneryzacja aplikacji
+Krok 1: Konteneryzacja aplikacji
 
-1. Utwórz plik "Dockerfile" (bez rozszerzenia) w głównym katalogu projektu:
+1. Zainstaluj Docker Desktop (https://docs.docker.com/desktop/setup/install/windows-install/). Zarejestruj konto za pośreddnictwem adresu e-mail. Pozostaw Docker Desktop otwarty realizując kolejne kroki.
+
+
+2. Utwórz plik Dockerfile (z poziomu IDE, np. VisualStudio) w głównym katalogu projektu.
+
+*** Zawartość pliku Dockerfile ***
 
 FROM python:3.11-slim
-
-# Ustaw katalog roboczy
 WORKDIR /app
-
-# Kopiuj pliki projektu
 COPY . .
-
-# Zainstaluj zależności
 RUN pip install --no-cache-dir -r requirements.txt
-
-# Otwórz port 8000
 EXPOSE 8000
-
-# Komenda startowa
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
 
+*** Koniec pliku Dockerfile ***
+
+
+3. Utwórz plik requirements.txt w głównym katalogu projektu.
+
+*** Zawartość pliku requirements.txt ***
+
+psycopg2-binary # Pakiet, który umożliwia połączenie aplikacji Python z bazą danych PostgreSQL
+# Podaj wszystkie biblioteki, z których korzystasz w projekcie. Przykład:
+geoalchemy2
+sqlalchemy
+pydantic
+fastapi
+uvicorn
+shapely
+
+*** Koniec pliku requirements.txt ***
+
+
+Krok 3: Dodanie PostgreSQL jako kontenera (Docker Compose)
+
+1. Utwórz plik docker-compose.yml w katalogu głównym projektu.
+
+*** Zawartość pliku docker-compose.yml ***
+
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_USER: <username>
+      POSTGRES_PASSWORD: <password>
+      POSTGRES_DB: <db_name>
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  web:
+    build: .
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: postgresql://<username>:<password>@db:5432/<db_name>
+
+volumes:
+  postgres_data:
+
+*** Koniec pliku docker-compose.yml ***
+
+
+2. Zmodyfikuj konfigurację połączenia z bazą danych w pliku main.py:
+
+import os
+
+DATABASE_URL = os.getenv("DATABASE_URL")
+
+
+Krok 4: Testowanie konfiguracji
+
+1. Zbuduj obraz następującym poleceniem:
+
+docker build -t fastapi-app .
+
+
+2. Uruchom kontener następującym poleceniem:
+
+docker run -d -p 8000:8000 fastapi-app
+
+
+Krok 5:  Uruchomienie aplikacji lokalnie z Docker Compose
+
+docker-compose up --build
+
+Otwórz przeglądarkę i przejdź do: http://localhost:8000
+
+Po chwili aplikacja będzie dostępna na: http://localhost:8000
+
+
+Krok 6: Wdrożenie na darmowy serwer (np. Render.com)
+
+1. Wejdź na https://render.com i utwórz konto.
+
+
+2. Utwórz nowy serwis typu Web Service.
+
+Podłącz repozytorium z aplikacją (GitHub, GitLab itp.).
+
+W konfiguracji ustaw:
+
+Build Command: docker-compose build
+
+Start Command: docker-compose up
+
+Dockerfile path: jeśli używasz docker-compose.yml, nie musisz podawać ścieżki do Dockerfile
+
+Port: 8000
+
+Environment Variables:
+
+DATABASE_URL — postgresql://<username>:<password>@db:5432/<db_name>
+
+Alternatywnie: utwórz osobny serwis typu PostgreSQL na Renderze i połącz go z aplikacją przez DATABASE_URL.
 
 
 *********************************************************************************************************
@@ -223,3 +325,26 @@ RUN pip install --no-cache-dir -r requirements.txt: To polecenie instaluje wszys
 EXPOSE 8000: Informuje Docker, że kontener będzie nasłuchiwał na porcie 8000. To nie otwiera portu, ale jest wskazówką dla użytkowników obrazu.
 
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]: Określa domyślną komendę do uruchomienia po starcie kontenera. W tym przypadku uruchamia serwer Uvicorn, który startuje aplikację FastAPI zdefiniowaną w pliku main.py i nasłuchuje na wszystkich interfejsach sieciowych (0.0.0.0) na porcie 8000.
+
+
+*** Budowanie obrazu kontenera ***
+
+Polecenie docker build -t fastapi-app . służy do budowania obrazu Docker z plików w bieżącym katalogu. Oto szczegółowe wyjaśnienie każdego elementu tego polecenia:
+
+docker build:
+To polecenie mówi Dockerowi, aby zbudował nowy obraz na podstawie pliku Dockerfile znajdującego się w bieżącym katalogu.
+
+-t fastapi-app:
+Flaga -t (skrót od --tag) pozwala nadać nazwę i opcjonalnie tag nowemu obrazowi. W tym przypadku obraz zostanie nazwany fastapi-app. Tagowanie obrazów jest przydatne do ich identyfikacji i wersjonowania.
+
+. (kropka):
+Kropka na końcu polecenia oznacza, że kontekst budowania obrazu znajduje się w bieżącym katalogu. Docker przeszuka ten katalog w poszukiwaniu pliku Dockerfile oraz wszystkich plików i folderów, które są potrzebne do zbudowania obrazu.
+
+
+*** Docker - przydatne komendy **
+
+docker ps 
+- Wyświetlenie listy uruchomionych kontenerów
+
+docker logs <container_id>
+- Sprawdzenie logów kontenera
