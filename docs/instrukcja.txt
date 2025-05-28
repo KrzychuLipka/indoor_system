@@ -34,7 +34,10 @@ Uvicorn – lekki i szybki serwer ASGI, idealny do uruchamiania aplikacji FastAP
 Uruchomienie serwera
 *********************************************************************************************************
 
+python -m uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+
 python -m uvicorn main:app --reload
+
 - Uruchamianie modułu uvicorn
 
 python -m 
@@ -325,3 +328,8 @@ docker ps
 
 docker logs <container_id>
 - Sprawdzenie logów kontenera
+
+zatrzymanie kontenera (jeśli istnieje) + zbudowanie nowego obrazu z aktualnym kodem + uruchomienie aplikacji
+docker-compose down    
+docker-compose up --build
+
