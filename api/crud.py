@@ -1,15 +1,14 @@
 from sqlalchemy.orm import Session
 from models import Person
 from schemas import PersonCreate, PositionUpdate
-from utils import validate_wkt
 
 def create_person(db: Session, person_data: PersonCreate) -> Person:
-    validate_wkt(person_data.position)
     person = Person(
         first_name=person_data.first_name,
         last_name=person_data.last_name,
         person_type_id=person_data.person_type_id,
-        position=f"SRID=2180;{person_data.position}"
+        lat=person_data.lat,
+        lon=person_data.lon
     )
     db.add(person)
     db.commit()
@@ -26,8 +25,8 @@ def update_person_position(db: Session, person_id: int, position_update: Positio
     person = get_person(db, person_id)
     if not person:
         return None
-    validate_wkt(position_update.position)
-    person.position = f"SRID=2180;{position_update.position}"
+    person.lat = position_update.lat
+    person.lon = position_update.lon
     db.commit()
     db.refresh(person)
     return person
